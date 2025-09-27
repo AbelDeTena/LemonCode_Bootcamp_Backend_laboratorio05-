@@ -1,127 +1,63 @@
-# Bootcamp Backend [Documental] Laboratorio 4 🍋
-![CI](https://github.com/AbelDeTena/LemonCode_Bootcamp_Backend_laboratorio04/actions/workflows/ci.yml/badge.svg)
+# Bootcamp Backend [Documental] Laboratorio 5 🍋
+![CI](https://github.com/AbelDeTena/LemonCode_Bootcamp_Backend_laboratorio05/actions/workflows/ci.yml/badge.svg)
 
-# Backend Lab: Houses API
+# Backend Lab: Cloud Deployments
 
-API REST en Node + Express con arquitectura por *pods* (houses), mappers Db→VM, mocks y tests mínimos con Vitest + Supertest.
+En este laboratorio desplegamos la API REST del **Laboratorio 4** en la nube. Se realizan dos despliegues manuales y uno automático usando Render + MongoDB Atlas.
 
 ## 🧰 Stack
 - Node + Express
 - TypeScript
-- Vitest + Supertest
-- Arquitectura por pods
-- Middlewares 404 y error
+- MongoDB Atlas
+- Render (manual + automático)
 
-## 🚀 Arranque
-```bash
-npm install
-npm run dev        # desarrollo (ts-node-dev)
-# http://localhost:3000
-```
+## 📌 Estructura de ramas
+- **despliegue-manual-mock** → despliegue manual en Render con **datos mock**.
+- **despliegue-manual-mongo** → despliegue manual en Render conectado a **MongoDB Atlas** (datos reales).
+- **despliegue-automatico** → despliegue automático en Render con conexión a **MongoDB Atlas**.
 
-## 🐳 Docker (local)
-Build:
-```bash
-docker build -t houses-api:dev .
-```
+## 🚀 Pasos básicos
+1. **Clonar repo**
+   ```bash
+   git clone https://github.com/AbelDeTena/LemonCode_Bootcamp_Backend_laboratorio05-.git
+   cd LemonCode_Bootcamp_Backend_laboratorio05-
+   npm install
+   ```
 
-## Docker image (GHCR)
-```bash
-docker pull ghcr.io/<usuario>/<repo>:latest
-docker run --rm -p 3000:3000 ghcr.io/<usuario>/<repo>:latest
-```
+2. **Rama despliegue-manual-mock**
+   - Render Web Service → `despliegue-manual-mock`.
+   - Variables de entorno mínimas:
+     ```env
+     PORT=3000
+     API_MOCK=true
+     ```
+   - URL pública Render con datos mock.
 
----
+3. **Rama despliegue-manual-mongo**
+   - Crear cluster en MongoDB Atlas.
+   - Configurar variables en Render:
+     ```env
+     PORT=3000
+     API_MOCK=false
+     MONGODB_URI=...
+     ```
+   - Insertar datos en Atlas desde console-runner.
+   - Probar API online.
 
-## 🔐 Configuración de entorno (.env)
-Crea un archivo `.env` con, por ejemplo:
+4. **Rama despliegue-automatico**
+   - Render Web Service conectado a GitHub → `despliegue-automatico`.
+   - Configuración de CI/CD: auto-deploy en cada `push`.
+   - Mismas variables de entorno que en `despliegue-manual-mongo`.
 
+## 🛠️ Variables de entorno
 ```env
-NODE_ENV=development
 PORT=3000
-API_MOCK=false
-MONGODB_URI=mongodb://localhost:27017/house-booking
+API_MOCK=true|false
+MONGODB_URI=  # Solo en ramas con Mongo
 ```
 
-- `API_MOCK=true` → la API usa **mocks en memoria** (sin Mongo).
-- `API_MOCK=false` → la API usa **MongoDB** (necesitas tenerlo levantado).
-
-> El *dump* usado para el seed está en `./seed/house-booking/` con:
-> - `listingsAndReviews.bson`
-> - `listingsAndReviews.metadata.json`
+## ✅ Entrega
+- Repo en GitHub con ramas `despliegue-manual-mock`, `despliegue-manual-mongo` y `despliegue-automatico`.
+- Cada rama con su despliegue correspondiente en Render.
 
 ---
-
-## 🗄️ MongoDB local con Docker (con seed)
-
-### Scripts disponibles
-En `package.json` hay scripts para trabajar con un contenedor Mongo minimalista:
-
-- `mongo:up` — levanta Mongo con Docker Compose.
-- `mongo:down` — para y elimina el contenedor.
-- `mongo:seed` — restaura el *dump* de `./seed/house-booking` dentro de Mongo.
-- `db:count` — sanity check: cuenta documentos en la colección.
-- `db:reset` — **atajo**: `mongo:down` → `mongo:up` → `mongo:seed` → `db:count`.
-
-### Uso recomendado (todo en uno)
-```bash
-npm run db:reset   # levanta mongo + restaura seed + muestra número de documentos
-npm run dev        # arranca la API con API_MOCK=false
-# GET http://localhost:3000/api/houses
-```
-
-### Uso paso a paso
-```bash
-npm run mongo:up
-npm run mongo:seed
-npm run db:count   # debería mostrar 5555
-npm run dev
-```
-
-### Parar todo
-```bash
-npm run mongo:down
-```
-
----
-
-## 🧪 Tests
-```bash
-npm test
-npm run test:watch
-```
-
----
-
-## 🔌 Endpoints principales
-- `GET /api/houses?country=Spain&page=1&pageSize=10` → listado paginado (+filtro por país).
-- `GET /api/houses/:id` → detalle de una casa.
-- `POST /api/houses/:id/reviews`
-  ```json
-  { "author": "Abel", "comment": "Very nice!" }
-  ```
-  - `201` si crea, `400` si faltan campos, `404` si no existe la casa.
-
----
-
-## 🛠️ Problemas típicos (y solución)
-- **Lista vacía usando Mongo**
-  - Asegúrate de `API_MOCK=false` en `.env`.
-  - Ejecuta `npm run db:reset` y revisa que `db:count` imprime `5555`.
-  - Confirma que la colección usada por el repositorio es **`listingsAndReviews`** (en minúsculas).
-
-- **El seed no se restaura**
-  - Revisa que existan `./seed/house-booking/listingsAndReviews.bson` y `./seed/house-booking/listingsAndReviews.metadata.json`.
-  - Si ves “don’t know what to do with file …”, suele ser por **nombres distintos** (p. ej. mayúsculas/minúsculas) o ruta incorrecta.
-
-- **Puerto 27017 ocupado**
-  - Para procesos antiguos (WSL/Docker previos) o cambia el puerto en `docker-compose.yml`.
-
----
-
-## ✅ CI
-Repositorio con CI (GitHub Actions) que ejecuta tests y type-check en cada push.
-
----
-
-¡Listo! 🚀

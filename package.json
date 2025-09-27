@@ -1,0 +1,37 @@
+{
+  "name": "lemoncode_bootcamp_backend_laboratorio04",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/api/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/api/server.js",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:ci": "vitest --run --coverage",
+    "mongo:up": "docker compose up -d mongo",
+    "mongo:down": "docker compose down",
+    "mongo:seed": "docker exec mongo sh -lc \"mongorestore --drop --dir /dump --nsInclude 'house-booking.listingsAndReviews'\"",
+    "db:count": "docker exec mongo mongosh --quiet --eval \"db.getSiblingDB('house-booking').listingsAndReviews.countDocuments()\"",
+    "db:reset": "npm run mongo:down && npm run mongo:up && node -e \"setTimeout(()=>{}, 2500)\" && npm run mongo:seed && npm run db:count"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.3.1",
+    "@types/supertest": "^6.0.3",
+    "@vitest/coverage-v8": "^3.2.4",
+    "supertest": "^7.1.4",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "mongodb": "^6.19.0"
+  }
+}
